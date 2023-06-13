@@ -31,7 +31,6 @@ def avanzar(wheels, vel_avanzar):
 
 def parar(wheels):
     [w.setVelocity(0) for w in wheels]
-
 ## --- Sensores ---
 
 def detectar_obstaculo(sensores):

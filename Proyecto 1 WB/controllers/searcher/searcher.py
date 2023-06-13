@@ -4,7 +4,7 @@ from threading import Thread
 import keyboard
 import sys
 import rpyc
-import time
+import random
 sys.path.insert(1, 'C:\\Users\\Lucas\\Desktop\\TFG\\Proyecto 1 WB\\controllers\\utils')
 
 import utils as ut
@@ -13,14 +13,19 @@ import ports as port
 
 robot_instance = Robot()
 TIME_STEP = int(robot_instance.getBasicTimeStep())
-rotar = 0
-velocidad = 0
+rotar = 3
+velocidad = 5
 
 cam_margin = 20
-goal_margin = 26
-ds_umbral = 25
 
-class Robot_RPYC(rpyc.Service):
+goal_margin = 11
+ds_umbral = 13
+
+color_red    = [1,0,0]
+color_blue   = [0,0,1]
+color_yellow = [1,1,0]
+
+class Seacher(rpyc.Service):
 
     def __init__(self):
 
@@ -62,61 +67,67 @@ class Robot_RPYC(rpyc.Service):
         self.thread.start()
 
         ## Propiedades
-        self.state = ""
-        self.color_target = "red"
+        self.state = "search"
+        self.color_target = color_red
         self.cam_left_margin = self.camera.getHeight()/2 - cam_margin
         self.cam_right_margin = self.camera.getHeight()/2 + cam_margin
 
-        self.last_obstacle = ""
         self.reposition_obtacle = False
+        self.full_turning = False
         self.counter = 0
 
         ## cambiar mas tarde
         self.target_id = -1
+        self.search_state = 1
+        self.random_turn = 1
+
+    def rotate_full_right(self):
+        if(self.counter == 150):
+            self.counter = 0
+            self.full_turning = False
+        else:
+            self.counter += 1
+            ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
     
-    def get_camera_target(self,list_objects):
-        closest_id = 0
+    def get_camera_target(self,ro_objects):
+        closest_id = -1
         tam_max = 0
 
-        for object in list_objects:
-            if(True): #añadir reglas colores
-
-                tam2D = object.getSizeOnImage()
+        for ro_object in ro_objects:
+            ro_color = self.extract_list_colors(ro_object.getColors())
+            if(ro_color == self.color_target): 
+                tam2D = ro_object.getSizeOnImage()
                 tam = tam2D[0] + tam2D[1]
 
                 if(tam > tam_max):
-                    closest_id = object.getId()
+                    closest_id = ro_object.getId()
                     tam_max = tam
 
         self.target_id = closest_id
 
     def avoid_obstacles(self):
         left  = int(self.ds_l.getValue())
-        center = int(self.ds_c.getValue())
         right = int(self.ds_r.getValue())
 
-        if(left < ds_umbral):
-            self.last_obstacle = "left"
+        obstacle_left = (left <= ds_umbral)
+        obstacle_right = (right <= ds_umbral)
+
+        if(obstacle_left and obstacle_right):
+            self.full_turning = True
+            return True
+        
+        elif(obstacle_left):
             self.reposition_obtacle = True
             ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
             return True
         
-        if(right < ds_umbral):
-            self.last_obstacle = "right"
+        elif(obstacle_right):
             self.reposition_obtacle = True
             ut.rotar_izquierda(self.lwheels, self.rwheels, rotar)
             return True
         
-        if(center < ds_umbral):
-            if(self.last_obstacle == "left"):
-                ut.rotar_izquierda(self.lwheels, self.rwheels, rotar)
-            else:
-                ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
-            self.reposition_obtacle = True
-            return True
-        
-        if(self.reposition_obtacle):
-            if(self.counter == 200):
+        elif(self.reposition_obtacle):
+            if(self.counter == 150):
                 self.reposition_obtacle = False
                 self.counter = 0
                 return False
@@ -128,9 +139,18 @@ class Robot_RPYC(rpyc.Service):
         return False
 
     def move_to_target(self, target):
+        if(self.full_turning):
+            self.rotate_full_right()
+            return
+        
+        if(target == None):
+            self.state = "search"
+            self.target_id = -1
+            return
+        
         target_position = target.getPositionOnImage()[0]
-
         avoid = self.avoid_obstacles()
+
         if(avoid): return
 
         if(target_position < self.cam_left_margin):
@@ -139,62 +159,91 @@ class Robot_RPYC(rpyc.Service):
             ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
         else:
             ut.avanzar(self.wheels,velocidad)
+
+    def search_target(self):
+        if(self.avoid_obstacles()): 
+            self.search_state = 1
+            return
+
+        if(self.search_state == 1):
+            if(self.counter == 150):
+                self.counter = 0
+                self.search_state = 2
+                self.random_turn = random.randint(1, 2)
+            else:
+                ut.avanzar(self.wheels,velocidad)
+                self.counter += 1
+
+        elif(self.search_state == 2):
+            if(self.counter == 150):
+                self.counter = 0
+                self.search_state = 1
+            else:  
+                if(self.random_turn == 1):
+                    ut.rotar_izquierda(self.lwheels, self.rwheels, rotar)
+                else:
+                    ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
+                self.counter += 1
     
     def target_reached(self, target):
-        left   = int(self.ds_l.getValue())
-        center = int(self.ds_c.getValue())
-        right  = int(self.ds_r.getValue())
-        target_size = target.getSizeOnImage()
-        goal_size = self.camera.getWidth()*0.4
+        if(target == None): return False
+        size2D = target.getSizeOnImage()
+        target_size = size2D[0] * size2D[1]
+        cam_size = self.camera.getWidth() * self.camera.getHeight()
 
-        condition1 = left <= goal_margin or center <= goal_margin or right <= goal_margin
-        condition2 = (target_size[0] >= goal_size or target_size[1] >= goal_size)
+        condition = (target_size >= cam_size*0.3)
 
-        return (condition1 and condition2)
+        return (condition)
     
-    def get_target_from_list(self,list_ro):
+    def get_target_from_list(self, target_id, list_ro):
         for ro in list_ro:
-            if(ro.getId() == self.target_id):
+            if(ro.getId() == target_id):
                 return ro
         return None
     
-    def locate_store(self, color, ):
-        pass
+    def extract_list_colors(self,color_object):
+        red = int(color_object[0])
+        green = int(color_object[1])
+        blue = int(color_object[2])
+        return [red,green,blue]
+    
+    def locate_store(self, list_ro, color):
+        for ro in list_ro:
+            color_ro = self.extract_list_colors(ro.getColors())
+            if(color == color_ro):
+                return ro.getId()
+        return None
 
 
     def main_loop(self):
         supervisor = rpyc.connect("127.0.0.1", port.SUPERVISOR_PORT)
-        self.state = "search"
         while self.robot.step(TIME_STEP) != -1:
-
             if(self.state == "search"):
-                list_ro = self.camera.getRecognitionObjects()
+                self.search_target()
 
+                list_ro = self.camera.getRecognitionObjects()
                 if(len(list_ro) != 0):
                     self.get_camera_target(list_ro)
+                    
+                if(self.target_id != -1):
                     self.state = "located"
-                else:
-                    ut.rotar_izquierda(self.lwheels, self.rwheels, rotar)
+                    self.search_state = 1
+                    self.counter = 0
 
             elif(self.state == "located"):
                 list_ro = self.camera.getRecognitionObjects()
-                target = self.get_target_from_list(list_ro)
+                target = self.get_target_from_list(self.target_id, list_ro)
 
-                if(target != None):
-                    if(self.target_reached(target)):
-                        supervisor.root.load_box(self.robot.getName(), target.getId())
-                        self.state = "store"
-                    else:
-                        self.move_to_target(target)
+                if(self.target_reached(target)):
+                    supervisor.root.load_box(self.robot.getName(), target.getId())
+                    self.state = "store"
                 else:
-                    if(self.last_obstacle == "right"):
-                        ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
-                    else:
-                        ut.rotar_izquierda(self.lwheels, self.rwheels, rotar)
+                    self.move_to_target(target)
 
             elif(self.state == "store"):
                 list_ro = self.camera.getRecognitionObjects()
-                target = self.get_target_from_list(list_ro)
+                store_id = self.locate_store(list_ro, color_yellow)
+                target = self.get_target_from_list(store_id, list_ro)
 
 
 
@@ -202,8 +251,8 @@ class Robot_RPYC(rpyc.Service):
 
 
 
-robot_rpyc = Robot_RPYC()
-ThreadedServer(robot_rpyc, hostname="127.0.0.1", port=robot_rpyc.port).start()
+seacher = Seacher()
+ThreadedServer(seacher, hostname="127.0.0.1", port=seacher.port).start()
 
 
 

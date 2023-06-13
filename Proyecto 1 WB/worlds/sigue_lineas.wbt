@@ -9,16 +9,16 @@ WorldInfo {
   basicTimeStep 8
 }
 Viewpoint {
-  orientation 0.3763580611115178 0.4316774906676989 -0.8197616445572564 1.632353764423332
-  position -0.4180383870427054 1.9679392488946557 2.0820305667474406
+  orientation -0.4733058455123405 -0.46854800500668004 0.7459519713816088 4.413739092437097
+  position 1.0329545986170547 2.167131518897487 2.9980688817797194
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 DEF robot_1 Robot {
-  translation -1.41331 -0.64714 0.0399291
-  rotation 0.0005759974840571926 0.0005675453347181213 0.9999996730595422 0.03156573987927267
+  translation 1.01615 1.5879 0.0399299
+  rotation -7.071209999558151e-06 8.65847999945897e-06 -0.9999999999375144 1.55232
   children [
     Solid {
       translation 0.095 0 0.04
@@ -93,7 +93,7 @@ DEF robot_1 Robot {
     }
     DistanceSensor {
       translation 0.1 0.04 0
-      rotation 0 0 1 0.3926996938995747
+      rotation 0 0 1 0.26180030610042526
       children [
         DEF sensor_shape Shape {
           appearance PBRAppearance {
@@ -141,7 +141,7 @@ DEF robot_1 Robot {
     }
     DistanceSensor {
       translation 0.1 -0.04 0
-      rotation 0 0 1 -0.3926996938995747
+      rotation 0 0 1 -0.2617996938995747
       children [
         DEF sensor_shape Shape {
           appearance PBRAppearance {
@@ -164,7 +164,7 @@ DEF robot_1 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 11.628773393866709
+        position 15.78077345392575
         axis 0 1 0
         anchor 0.05 0.06 0
       }
@@ -174,8 +174,8 @@ DEF robot_1 Robot {
         }
       ]
       endPoint DEF Wheel1 Solid {
-        translation 0.050000124975506294 0.06 2.804091558365338e-07
-        rotation 0.8129590643798839 -0.41176219473990316 0.41176383355700613 1.776410524270877
+        translation 0.04999969605341672 0.06 -4.3181551176192185e-08
+        rotation -0.025720047119908294 0.7068714535664469 -0.7068742655585987 3.1930212063418946
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -196,7 +196,7 @@ DEF robot_1 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 3.342415590437621
+        position 7.49441556919439
         axis 0 1 0
         anchor 0.05 -0.06 0
       }
@@ -206,8 +206,8 @@ DEF robot_1 Robot {
         }
       ]
       endPoint DEF Wheel2 Solid {
-        translation 0.050000091563783475 -0.059999999566905826 1.959964538145397e-06
-        rotation 0.07103605159091046 -0.7053192643223276 0.7053216392187212 2.999759276372004
+        translation 0.049998291147553 -0.059999999566905826 -9.641930468667455e-07
+        rotation 0.714519105066131 0.4947023349726672 -0.4947040006590668 1.9007878161276481
         children [
           USE Wheel
         ]
@@ -218,7 +218,7 @@ DEF robot_1 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 11.628784270380798
+        position 15.780784174292197
         axis 0 1 0
         anchor -0.05 0.06 0
       }
@@ -228,8 +228,8 @@ DEF robot_1 Robot {
         }
       ]
       endPoint DEF Wheel3 Solid {
-        translation -0.04999825848116762 0.05999999956724689 -9.03413420790725e-07
-        rotation -0.812962701823209 0.41175873010716124 -0.4117601166029152 4.506779760533502
+        translation -0.05000016040991377 0.05999999956724689 1.955329208070438e-06
+        rotation 0.025723833543879464 -0.7068716005992444 0.7068739807448489 3.090156502951888
         children [
           USE Wheel
         ]
@@ -240,7 +240,7 @@ DEF robot_1 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 3.3424261648550897
+        position 7.494426144806155
         axis 0 1 0
         anchor -0.05 -0.06 0
       }
@@ -250,8 +250,8 @@ DEF robot_1 Robot {
         }
       ]
       endPoint DEF Wheel4 Solid {
-        translation -0.049999908429462406 -0.06000000043275322 1.9599642261236426e-06
-        rotation 0.07103980076677517 -0.7053190755070206 0.7053214504273485 2.9997518156960266
+        translation -0.05000170885577377 -0.06000000043275322 -9.641871579045822e-07
+        rotation 0.7145151524260716 0.4947051894202946 -0.49470685513158025 1.9007930495878915
         children [
           USE Wheel
         ]
@@ -285,8 +285,8 @@ Robot {
   supervisor TRUE
 }
 DEF box_1 Solid {
-  translation -0.368601 0.825144 0.0499019
-  rotation 5.153782598908623e-13 6.487656925650984e-13 -0.9999999999999999 6.045625161057302e-06
+  translation 1.13141 1.01546 0.0499019
+  rotation 6.91677891474845e-13 -8.497421404283866e-13 -1 6.045625161022676e-06
   children [
     DEF BOX_SHAPE Shape {
       appearance PBRAppearance {
@@ -310,8 +310,8 @@ DEF box_1 Solid {
   ]
 }
 DEF box_2 Solid {
-  translation 0.140081 -0.621785 0.0499019
-  rotation -1.4238656808181962e-12 -2.32737074543612e-13 -0.9999999999999999 6.0456251610847485e-06
+  translation -1.32 0.528985 0.0499019
+  rotation -1.6001639801367573e-12 8.250330037685878e-13 -1 6.045625161058373e-06
   children [
     DEF BOX_SHAPE Shape {
       appearance PBRAppearance {
@@ -335,8 +335,8 @@ DEF box_2 Solid {
   ]
 }
 DEF box_4 Solid {
-  translation 0.693818 -1.1878 0.0499019
-  rotation 1.5110011968852312e-13 5.148338536430119e-13 -0.9999999999999999 6.045649790545421e-06
+  translation 0.986376 -0.0821913 0.0499019
+  rotation 6.7998620164984e-13 -4.547836577542002e-13 -1 6.045649790561077e-06
   children [
     DEF BOX_SHAPE Shape {
       appearance PBRAppearance {
@@ -372,8 +372,8 @@ Floor {
   }
 }
 DEF box_3 Solid {
-  translation -0.150457 0.763832 0.0499019
-  rotation -1.8980339535163742e-13 3.841930053462838e-13 -0.9999999999999999 6.045625161074155e-06
+  translation 0.952832 0.519972 0.0499019
+  rotation 1.4850011382280642e-12 3.160786422414425e-14 -0.9999999999999999 6.045625161055814e-06
   children [
     DEF BOX_SHAPE Shape {
       appearance PBRAppearance {
@@ -442,7 +442,7 @@ Solid {
 }
 Solid {
   translation -0.0698433 -0.736622 0.0499019
-  rotation 0.03217302446795295 -0.01608651223398933 -0.9993528509093924 9.938270845829493e-17
+  rotation -0.010508592570859206 -0.021017185141725736 -0.9997238855858641 1.014231065153233e-16
   children [
     DEF BOX_SHAPE Shape {
       appearance PBRAppearance {
@@ -481,7 +481,7 @@ Solid {
 }
 Solid {
   translation -0.207836 -0.412057 0.0499019
-  rotation 0.03217302446795295 -0.01608651223398933 -0.9993528509093924 9.938270845829493e-17
+  rotation -0.010247991904096386 0.02561997976022244 -0.9996192251547682 1.0400223903518568e-16
   children [
     DEF BOX_SHAPE Shape {
       appearance PBRAppearance {
@@ -518,7 +518,7 @@ Solid {
   physics Physics {
   }
 }
-Solid {
+DEF zona_A Solid {
   translation 0 0 0.2
   children [
     Solid {
@@ -558,5 +558,5 @@ Solid {
       boundingObject USE palo
     }
   ]
-  name "meta"
+  name "zona_A"
 }
