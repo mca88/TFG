@@ -1,0 +1,22 @@
+#VRML_SIM R2023a utf8
+# Describe the functionality of your PROTO here.
+
+EXTERNPROTO "C:/Users/Lucas/Desktop/TFG/Proyecto 1 WB/protos/FourWheelsRobot.proto"
+
+PROTO MyProto [
+  field SFVec3f translation 0 0 0
+  field SFRotation rotation 0 0 1 0
+  field SFFloat bodyMass 1
+  field SFString controller "<generic>"
+  field SFString name "robot_1"
+
+]
+{
+  FourWheelsRobot {
+    translation IS translation
+    rotation IS rotation
+    bodyMass IS bodyMass
+    controller IS controller
+    name IS name
+  }
+}

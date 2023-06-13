@@ -1,0 +1,562 @@
+#VRML_SIM R2023a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/floors/protos/Floor.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/appearances/protos/VarnishedPine.proto"
+
+WorldInfo {
+  basicTimeStep 8
+}
+Viewpoint {
+  orientation 0.3763580611115178 0.4316774906676989 -0.8197616445572564 1.632353764423332
+  position -0.4180383870427054 1.9679392488946557 2.0820305667474406
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+DEF robot_1 Robot {
+  translation -1.41331 -0.64714 0.0399291
+  rotation 0.0005759974840571926 0.0005675453347181213 0.9999996730595422 0.03156573987927267
+  children [
+    Solid {
+      translation 0.095 0 0.04
+      children [
+        DEF cuerpo_camara Shape {
+          appearance PBRAppearance {
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.03
+          }
+        }
+      ]
+      name "cuerpo_camara"
+      boundingObject USE cuerpo_camara
+      physics Physics {
+      }
+    }
+    Camera {
+      translation 0.095 0 0.06
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 0
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      width 1200
+      height 1200
+      antiAliasing TRUE
+      recognition Recognition {
+        frameThickness 10
+      }
+    }
+    DistanceSensor {
+      translation 0.08 0.04 -0.027
+      rotation 0 1 0 1.5707996938995747
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 1 0 0
+            metalness 0
+          }
+          geometry Box {
+            size 0.005 0.01 0.01
+          }
+        }
+      ]
+      name "ir_left"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0.08 -0.04 -0.027
+      rotation 0 1 0 1.5707996938995747
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 1 0 0
+            metalness 0
+          }
+          geometry Box {
+            size 0.005 0.01 0.01
+          }
+        }
+      ]
+      name "ir_right"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0.1 0.04 0
+      rotation 0 0 1 0.3926996938995747
+      children [
+        DEF sensor_shape Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      name "ds_left"
+      boundingObject USE sensor_shape
+      physics Physics {
+      }
+      recognitionColors [
+        0 0 0
+      ]
+      lookupTable [
+        0 0 0
+        0.3 30 0
+      ]
+    }
+    DistanceSensor {
+      translation 0.1 0 0
+      children [
+        DEF sensor_shape Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      name "ds_center"
+      boundingObject USE sensor_shape
+      physics Physics {
+      }
+      lookupTable [
+        0 0 0
+        0.29 30 0
+      ]
+    }
+    DistanceSensor {
+      translation 0.1 -0.04 0
+      rotation 0 0 1 -0.3926996938995747
+      children [
+        DEF sensor_shape Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      name "ds_right"
+      boundingObject USE sensor_shape
+      physics Physics {
+      }
+      lookupTable [
+        0 0 0
+        0.3 30 0
+      ]
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        position 11.628773393866709
+        axis 0 1 0
+        anchor 0.05 0.06 0
+      }
+      device [
+        RotationalMotor {
+          name "wheel1"
+        }
+      ]
+      endPoint DEF Wheel1 Solid {
+        translation 0.050000124975506294 0.06 2.804091558365338e-07
+        rotation 0.8129590643798839 -0.41176219473990316 0.41176383355700613 1.776410524270877
+        children [
+          DEF Wheel Shape {
+            appearance PBRAppearance {
+              baseColor 0 1 0
+              metalness 0
+            }
+            geometry Cylinder {
+              height 0.02
+              radius 0.04
+            }
+          }
+        ]
+        name "solid wheel1"
+        boundingObject USE Wheel
+        physics DEF Wheel_PH Physics {
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        position 3.342415590437621
+        axis 0 1 0
+        anchor 0.05 -0.06 0
+      }
+      device [
+        RotationalMotor {
+          name "wheel2"
+        }
+      ]
+      endPoint DEF Wheel2 Solid {
+        translation 0.050000091563783475 -0.059999999566905826 1.959964538145397e-06
+        rotation 0.07103605159091046 -0.7053192643223276 0.7053216392187212 2.999759276372004
+        children [
+          USE Wheel
+        ]
+        name "wheel2"
+        boundingObject USE Wheel
+        physics USE Wheel_PH
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        position 11.628784270380798
+        axis 0 1 0
+        anchor -0.05 0.06 0
+      }
+      device [
+        RotationalMotor {
+          name "wheel3"
+        }
+      ]
+      endPoint DEF Wheel3 Solid {
+        translation -0.04999825848116762 0.05999999956724689 -9.03413420790725e-07
+        rotation -0.812962701823209 0.41175873010716124 -0.4117601166029152 4.506779760533502
+        children [
+          USE Wheel
+        ]
+        name "wheel3"
+        boundingObject USE Wheel
+        physics USE Wheel_PH
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        position 3.3424261648550897
+        axis 0 1 0
+        anchor -0.05 -0.06 0
+      }
+      device [
+        RotationalMotor {
+          name "wheel4"
+        }
+      ]
+      endPoint DEF Wheel4 Solid {
+        translation -0.049999908429462406 -0.06000000043275322 1.9599642261236426e-06
+        rotation 0.07103980076677517 -0.7053190755070206 0.7053214504273485 2.9997518156960266
+        children [
+          USE Wheel
+        ]
+        name "wheel4"
+        boundingObject USE Wheel
+        physics USE Wheel_PH
+      }
+    }
+    DEF BODY Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+        metalness 0
+        IBLStrength 0
+        normalMapFactor 0
+        occlusionMapStrength 0
+      }
+      geometry Box {
+        size 0.2 0.1 0.05
+      }
+    }
+  ]
+  name "robot_1"
+  boundingObject USE BODY
+  physics Physics {
+  }
+  controller "searcher"
+}
+Robot {
+  name "supervisor"
+  controller "supervisor_lines"
+  supervisor TRUE
+}
+DEF box_1 Solid {
+  translation -0.368601 0.825144 0.0499019
+  rotation 5.153782598908623e-13 6.487656925650984e-13 -0.9999999999999999 6.045625161057302e-06
+  children [
+    DEF BOX_SHAPE Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "box_1"
+  model "box_1"
+  boundingObject USE BOX_SHAPE
+  physics Physics {
+    density -1
+    mass 1
+  }
+  recognitionColors [
+    0 0 1
+  ]
+}
+DEF box_2 Solid {
+  translation 0.140081 -0.621785 0.0499019
+  rotation -1.4238656808181962e-12 -2.32737074543612e-13 -0.9999999999999999 6.0456251610847485e-06
+  children [
+    DEF BOX_SHAPE Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "box_2"
+  model "box_2"
+  boundingObject USE BOX_SHAPE
+  physics Physics {
+    density -1
+    mass 1
+  }
+  recognitionColors [
+    1 0 0
+  ]
+}
+DEF box_4 Solid {
+  translation 0.693818 -1.1878 0.0499019
+  rotation 1.5110011968852312e-13 5.148338536430119e-13 -0.9999999999999999 6.045649790545421e-06
+  children [
+    DEF BOX_SHAPE Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "box_4"
+  model "box_4"
+  boundingObject USE BOX_SHAPE
+  physics Physics {
+    density -1
+    mass 1
+  }
+  recognitionColors [
+    1 0 0
+  ]
+}
+Floor {
+  size 4 4
+  tileSize 4 4
+  appearance PBRAppearance {
+    baseColorMap ImageTexture {
+      url [
+        "../mapa TFG.jpg"
+      ]
+    }
+    metalness 0
+  }
+}
+DEF box_3 Solid {
+  translation -0.150457 0.763832 0.0499019
+  rotation -1.8980339535163742e-13 3.841930053462838e-13 -0.9999999999999999 6.045625161074155e-06
+  children [
+    DEF BOX_SHAPE Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "box_3"
+  model "box_3"
+  boundingObject USE BOX_SHAPE
+  physics Physics {
+    density -1
+    mass 1
+  }
+  recognitionColors [
+    0 0 1
+  ]
+}
+Solid {
+  translation 0 -2 0.05
+  children [
+    DEF shape_muro Shape {
+      appearance VarnishedPine {
+      }
+      geometry Box {
+        size 4 0.01 0.1
+      }
+    }
+  ]
+  name "muro_sur"
+  boundingObject USE shape_muro
+}
+Solid {
+  translation -2 0 0.05
+  rotation 0 0 1 1.5707903061004251
+  children [
+    DEF shape_muro Shape {
+      appearance VarnishedPine {
+      }
+      geometry Box {
+        size 4 0.01 0.1
+      }
+    }
+  ]
+  name "muro_oeste"
+  boundingObject USE shape_muro
+}
+Solid {
+  translation 2 0 0.05
+  rotation 0 0 1 1.5707903061004251
+  children [
+    DEF shape_muro Shape {
+      appearance VarnishedPine {
+      }
+      geometry Box {
+        size 4 0.01 0.1
+      }
+    }
+  ]
+  name "muro_este"
+  boundingObject USE shape_muro
+}
+Solid {
+  translation -0.0698433 -0.736622 0.0499019
+  rotation 0.03217302446795295 -0.01608651223398933 -0.9993528509093924 9.938270845829493e-17
+  children [
+    DEF BOX_SHAPE Shape {
+      appearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/factory/containers/protos/textures/wooden_box_base_color.jpg"
+          ]
+        }
+        roughnessMap ImageTexture {
+          url [
+            "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/factory/containers/protos/textures/wooden_box_roughness.jpg"
+          ]
+        }
+        metalness 0
+        normalMap ImageTexture {
+          url [
+            "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/factory/containers/protos/textures/wooden_box_normal.jpg"
+          ]
+        }
+        occlusionMap ImageTexture {
+          url [
+            "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/factory/containers/protos/textures/wooden_box_occlusion.jpg"
+          ]
+        }
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "wooden box"
+  model "wooden box"
+  boundingObject USE BOX_SHAPE
+  physics Physics {
+  }
+}
+Solid {
+  translation -0.207836 -0.412057 0.0499019
+  rotation 0.03217302446795295 -0.01608651223398933 -0.9993528509093924 9.938270845829493e-17
+  children [
+    DEF BOX_SHAPE Shape {
+      appearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/factory/containers/protos/textures/wooden_box_base_color.jpg"
+          ]
+        }
+        roughnessMap ImageTexture {
+          url [
+            "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/factory/containers/protos/textures/wooden_box_roughness.jpg"
+          ]
+        }
+        metalness 0
+        normalMap ImageTexture {
+          url [
+            "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/factory/containers/protos/textures/wooden_box_normal.jpg"
+          ]
+        }
+        occlusionMap ImageTexture {
+          url [
+            "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/factory/containers/protos/textures/wooden_box_occlusion.jpg"
+          ]
+        }
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "wooden box(1)"
+  model "wooden box"
+  boundingObject USE BOX_SHAPE
+  physics Physics {
+  }
+}
+Solid {
+  translation 0 0 0.2
+  children [
+    Solid {
+      translation 0 0 0.05
+      children [
+        DEF señal Shape {
+          appearance PBRAppearance {
+            baseColor 1 1 0
+            metalness 0
+          }
+          geometry Box {
+            size 0.1 0.1 0.1
+          }
+        }
+      ]
+      name "señal"
+      boundingObject USE señal
+      recognitionColors [
+        1 1 0
+      ]
+    }
+    Solid {
+      translation 0 0 -0.1
+      children [
+        DEF palo Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 0
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.2
+            radius 0.01
+          }
+        }
+      ]
+      name "palo"
+      boundingObject USE palo
+    }
+  ]
+  name "meta"
+}
