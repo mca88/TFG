@@ -13,14 +13,12 @@ import ports as port
 
 robot_instance = Robot()
 TIME_STEP = int(robot_instance.getBasicTimeStep())
+
 rotar = 3
 velocidad = 5
 
 cam_margin = 20
-
-goal_margin = 11
-ds_umbral = 13
-
+ds_umbral = 15
 color_red    = [1,0,0]
 color_blue   = [0,0,1]
 color_yellow = [1,1,0]
@@ -73,13 +71,16 @@ class Seacher(rpyc.Service):
         self.cam_right_margin = self.camera.getHeight()/2 + cam_margin
 
         self.reposition_obtacle = False
+        self.reposition_after_pick = False
+        self.reposition_after_store = False
         self.full_turning = False
         self.counter = 0
 
         ## cambiar mas tarde
         self.target_id = -1
+        self.carrying_box_id = -1
         self.search_state = 1
-        self.random_turn = 1
+        self.rand_turn = 1
 
     def rotate_full_right(self):
         if(self.counter == 150):
@@ -88,6 +89,35 @@ class Seacher(rpyc.Service):
         else:
             self.counter += 1
             ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
+            
+    def move_forward_a_bit(self):
+        if(self.counter == 200):
+            self.counter = 0
+            self.reposition_after_pick = False
+        else:
+            self.counter += 1
+            ut.avanzar(self.wheels,velocidad)
+
+    def turn(self):
+        if(self.counter == 300):
+            self.counter = 0
+            self.reposition_after_store = False
+        else:
+            self.counter += 1
+            ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
+
+
+    def extract_list_colors(self,color_object):
+        red = int(color_object[0])
+        green = int(color_object[1])
+        blue = int(color_object[2])
+        return [red,green,blue]
+    
+    def get_target_from_list(self, target_id, list_ro):
+        for ro in list_ro:
+            if(ro.getId() == target_id):
+                return ro
+        return None
     
     def get_camera_target(self,ro_objects):
         closest_id = -1
@@ -107,11 +137,13 @@ class Seacher(rpyc.Service):
 
     def avoid_obstacles(self):
         left  = int(self.ds_l.getValue())
+        center = int(self.ds_c.getValue())
         right = int(self.ds_r.getValue())
 
         obstacle_left = (left <= ds_umbral)
+        obstacle_center = (center <= ds_umbral)
         obstacle_right = (right <= ds_umbral)
-
+        
         if(obstacle_left and obstacle_right):
             self.full_turning = True
             return True
@@ -126,6 +158,11 @@ class Seacher(rpyc.Service):
             ut.rotar_izquierda(self.lwheels, self.rwheels, rotar)
             return True
         
+        elif(obstacle_center):
+            self.reposition_obtacle = True
+            ut.rotar_izquierda(self.lwheels, self.rwheels, rotar)
+            return True
+
         elif(self.reposition_obtacle):
             if(self.counter == 150):
                 self.reposition_obtacle = False
@@ -142,7 +179,6 @@ class Seacher(rpyc.Service):
         if(self.full_turning):
             self.rotate_full_right()
             return
-        
         if(target == None):
             self.state = "search"
             self.target_id = -1
@@ -150,7 +186,6 @@ class Seacher(rpyc.Service):
         
         target_position = target.getPositionOnImage()[0]
         avoid = self.avoid_obstacles()
-
         if(avoid): return
 
         if(target_position < self.cam_left_margin):
@@ -161,7 +196,7 @@ class Seacher(rpyc.Service):
             ut.avanzar(self.wheels,velocidad)
 
     def search_target(self):
-        if(self.avoid_obstacles()): 
+        if(self.avoid_obstacles()):
             self.search_state = 1
             return
 
@@ -169,7 +204,7 @@ class Seacher(rpyc.Service):
             if(self.counter == 150):
                 self.counter = 0
                 self.search_state = 2
-                self.random_turn = random.randint(1, 2)
+                self.rand_turn = random.randint(0, 1)
             else:
                 ut.avanzar(self.wheels,velocidad)
                 self.counter += 1
@@ -179,33 +214,20 @@ class Seacher(rpyc.Service):
                 self.counter = 0
                 self.search_state = 1
             else:  
-                if(self.random_turn == 1):
+                if(self.rand_turn == 0):
                     ut.rotar_izquierda(self.lwheels, self.rwheels, rotar)
                 else:
                     ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
                 self.counter += 1
     
-    def target_reached(self, target):
+    def target_reached(self, target, percentage):
         if(target == None): return False
         size2D = target.getSizeOnImage()
         target_size = size2D[0] * size2D[1]
         cam_size = self.camera.getWidth() * self.camera.getHeight()
-
-        condition = (target_size >= cam_size*0.3)
+        condition = (target_size >= cam_size*percentage)
 
         return (condition)
-    
-    def get_target_from_list(self, target_id, list_ro):
-        for ro in list_ro:
-            if(ro.getId() == target_id):
-                return ro
-        return None
-    
-    def extract_list_colors(self,color_object):
-        red = int(color_object[0])
-        green = int(color_object[1])
-        blue = int(color_object[2])
-        return [red,green,blue]
     
     def locate_store(self, list_ro, color):
         for ro in list_ro:
@@ -217,10 +239,14 @@ class Seacher(rpyc.Service):
 
     def main_loop(self):
         supervisor = rpyc.connect("127.0.0.1", port.SUPERVISOR_PORT)
+
         while self.robot.step(TIME_STEP) != -1:
             if(self.state == "search"):
-                self.search_target()
+                if(self.reposition_after_store):
+                    self.turn()
+                    continue
 
+                self.search_target()
                 list_ro = self.camera.getRecognitionObjects()
                 if(len(list_ro) != 0):
                     self.get_camera_target(list_ro)
@@ -234,22 +260,33 @@ class Seacher(rpyc.Service):
                 list_ro = self.camera.getRecognitionObjects()
                 target = self.get_target_from_list(self.target_id, list_ro)
 
-                if(self.target_reached(target)):
+                if(self.target_reached(target, 0.3)):
                     supervisor.root.load_box(self.robot.getName(), target.getId())
                     self.state = "store"
+                    self.carrying_box_id = target.getId()
+                    self.reposition_after_pick = True
                 else:
                     self.move_to_target(target)
 
             elif(self.state == "store"):
+                if(self.reposition_after_pick):
+                    self.move_forward_a_bit()
+                    continue
+                
                 list_ro = self.camera.getRecognitionObjects()
                 store_id = self.locate_store(list_ro, color_yellow)
                 target = self.get_target_from_list(store_id, list_ro)
 
-
-
-
-
-
+                if(target != None):
+                    if(self.target_reached(target, 0.10)):
+                        supervisor.root.store_box(target.getId(), self.carrying_box_id)
+                        self.state = "search"
+                        self.reposition_after_store = True
+                    else:
+                        self.move_to_target(target)
+                else:
+                    if(self.avoid_obstacles() == False):
+                        ut.rotar_derecha(self.lwheels, self.rwheels, rotar)
 
 seacher = Seacher()
 ThreadedServer(seacher, hostname="127.0.0.1", port=seacher.port).start()
