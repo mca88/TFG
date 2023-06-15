@@ -49,6 +49,14 @@ def detectar_obstaculo(sensores):
     
     return "nada"
 
+## --- Utils ---
+
+def extract_list_colors(color_object):
+    red = int(color_object[0])
+    green = int(color_object[1])
+    blue = int(color_object[2])
+    return [red,green,blue]
+
 ## --- Calculos ---
  
 def calc_grados_destino(pos_actual,destino):
