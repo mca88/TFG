@@ -2,7 +2,8 @@ from utils import TargetInfo
 
 rotate_speed = 2
 move_speed   = 5
-ds_limit = 15
+ds_limit_1 =  20
+ds_limit_2 = 16
 
 class MoveSearcher():
 
@@ -38,6 +39,10 @@ class MoveSearcher():
         self.last_obstacle = "left"
         self.search_state = 1
 
+        ## Aux camara
+        self.left_margin = 0
+        self.right_margin = 0
+
     def constant_timer(self,steps):
         return int((steps*8) / self.time_step)
 
@@ -60,7 +65,14 @@ class MoveSearcher():
             self.move_forward()
             self.counter += 1
             return False
-
+    def half_rotation(self):
+        if(self.counter == self.constant_timer(450)):
+            self.counter = 0
+            return True
+        else:
+            self.turn_left()
+            self.counter +=1
+            return False
 
     def full_rotation(self, rotation_dir):
         if(self.counter == self.constant_timer(890)):
@@ -83,14 +95,33 @@ class MoveSearcher():
             self.move_forward()
 
     def avoid_obstacles(self):
-        print(self.reposition)
-        center   = self.sensors['center'].getValue()
-        left_1   = self.sensors['left_1'].getValue() < self.maxRange
-        left_2   = self.sensors['left_2'].getValue() < self.maxRange
-        right_1  = self.sensors['right_1'].getValue() < self.maxRange
-        right_2  = self.sensors['right_2'].getValue() < self.maxRange
+        center_v  = int(self.sensors['center'].getValue())
+        left_1_v  = int(self.sensors['left_1'].getValue())
+        left_2_v  = int(self.sensors['left_2'].getValue())
+        right_1_v = int(self.sensors['right_1'].getValue()) 
+        right_2_v = int(self.sensors['right_2'].getValue())
 
-        if(left_1 or left_2):
+        center  = center_v < self.maxRange
+        left_1  = left_1_v < ds_limit_1
+        left_2  = left_2_v < ds_limit_2
+        right_1 = right_1_v < ds_limit_1
+        right_2 = right_2_v < ds_limit_2
+
+        if(False):
+            print("----------------------")
+            print(f"LEFT 2 : {left_2_v}")
+            print(f"LEFT 1 : {left_1_v}")
+            print(f"CENTER : {center_v}")
+            print(f"RIGHT 1: {right_1_v}")
+            print(f"RIGHT 2: {right_2_v}")
+        
+
+        if((left_2 and right_2) and (not center)):
+           self.move_forward()
+           return True
+
+
+        elif(left_1 or left_2):
             self.reposition = True
             self.last_obstacle = "left"
             self.counter = 0
@@ -119,13 +150,13 @@ class MoveSearcher():
             if(self.small_forward()):
                 self.search_state = 1
 
-    def move_to_target(self, target : TargetInfo, left_margin, right_margin):
+    def move_to_target(self, target : TargetInfo):
         avoid = self.avoid_obstacles()
         if(avoid): return
 
-        if(target.pos_x < left_margin):
+        if(target.pos_x < self.left_margin):
             self.turn_left()
-        elif(target.pos_x > right_margin):
+        elif(target.pos_x > self.right_margin):
             self.turn_right()
         else:
             self.move_forward()

@@ -14,6 +14,7 @@ class CamSearcher():
         self.color_target = color.color_red
         self.cam_left_margin = self.camera.getHeight()/2 - cam_margin
         self.cam_right_margin = self.camera.getHeight()/2 + cam_margin
+        self.cam_size = self.camera.getWidth() * self.camera.getHeight()
 
     def get_camera_target(self, target_color) -> TargetInfo:
         camera_objects = self.camera.getRecognitionObjects()
@@ -39,8 +40,7 @@ class CamSearcher():
             return None
         
     def target_reached(self, target : TargetInfo, percentage):
-        cam_size = self.camera.getWidth() * self.camera.getHeight()
-        condition = (target.size >= cam_size*percentage)
+        condition = (target.size >= self.cam_size*percentage)
         return (condition)
     
     def update_target(self, target : TargetInfo):

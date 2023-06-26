@@ -1,7 +1,8 @@
 from controller import Robot, Camera
 
-TIME_STEP = 128
+
 robot = Robot()
+TIME_STEP = 32
 
 ##RUEDAS
 w1 = robot.getDevice('wheel1')
@@ -61,7 +62,7 @@ def buscar_objeto(objetos):
     
     return (-1,-1)
 
-vel_rotacion = 0.3
+vel_rotacion = 2
 vel_avanzar = 2
 def rotar_derecha():
     [w.setVelocity(vel_rotacion) for w in lwheels]
@@ -77,8 +78,7 @@ def avanzar_si_centrado(eje_x):
         [w.setVelocity(vel_avanzar) for w in rwheels]
 
 def avanzar():
-    [w.setVelocity(vel_avanzar) for w in lwheels]
-    [w.setVelocity(vel_avanzar) for w in rwheels]
+    [w.setVelocity(vel_avanzar) for w in wheels]
 
 def centrar_robot_objeto(pos_x):
     if(pos_x > 325):
