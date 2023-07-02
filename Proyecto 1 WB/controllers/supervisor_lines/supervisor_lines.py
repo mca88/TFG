@@ -4,15 +4,8 @@ from threading import Thread
 from rpyc.utils.server import ThreadedServer
 
 import rpyc
-import sys
-import math
 
-sys.path.insert(1, 'C:\\Users\\Lucas\\Desktop\\TFG\\Proyecto 1 WB\\controllers\\utils')
-
-import utils as ut
-import ports as port
-
-TOTAL_BOXES = 4
+TOTAL_BOXES = 20
 
 supervisor = Supervisor()
 TIME_STEP = int(supervisor.getBasicTimeStep())
@@ -23,7 +16,6 @@ class Supervisor_RPYC(rpyc.Service):
         self.supervisor = supervisor
 
         ## Lista de cajas
-        #self.boxes = self.get_world_boxes()
         self.waiting_boxes = []
         self.ready_boxes = []
 
@@ -53,6 +45,10 @@ class Supervisor_RPYC(rpyc.Service):
         return total_boxes
 
     def exposed_load_box(self, robot, box_id):
+
+        if(box_id == None and len(self.waiting_boxes) == 0): 
+            return -1
+        
         self.load_box = True
         self.target_robot = robot
         self.box_id_to_load = box_id
@@ -66,31 +62,50 @@ class Supervisor_RPYC(rpyc.Service):
         robot_pos = self.supervisor.getFromDef(self.target_robot).getField('translation').getSFVec3f()
         robot_rot = self.supervisor.getFromDef(self.target_robot).getField('rotation').getSFRotation()
 
-        box = self.supervisor.getFromId(self.box_id_to_load)
+        if(self.box_id_to_load != None):
+            box = self.supervisor.getFromId(self.box_id_to_load)
+            box.getField('recognitionColors').removeMF(0)
+        else:
+            box = self.waiting_boxes.pop()
+            liner = rpyc.connect("127.0.0.1", 3000 + int(self.target_robot.split("_")[1]))
+            liner.root.set_box_id(box.getId())
+            liner.close()
+
 
         robot_pos[2] += 0.08
         box.getField('translation').setSFVec3f(robot_pos)
         box.getField('rotation').setSFRotation(robot_rot)
-        box.getField('recognitionColors').removeMF(0)
-
+        
     def store_box_zone(self):
         box_to_store = self.supervisor.getFromId(self.box_id_to_store)
-        store_zore   = self.supervisor.getFromId(self.target_zone_id).getField('translation').getSFVec3f() 
-        while True:
-            x = random.uniform(-0.2, 0.2)
-            y = random.uniform(-0.2, 0.2)
-            if not (-0.07 <= x <= 0.07 and -0.07 <= y <= 0.07):
-                break
-        
+
+        if(self.target_zone_id == "store"):
+            store_zore   = self.supervisor.getFromDef("store").getField('translation').getSFVec3f()
+            rot_zone     = self.supervisor.getFromDef("store").getField('rotation').getSFRotation()
+            self.ready_boxes.insert(0, box_to_store)
+
+            x = random.uniform(-0.43, 0.43)
+            y = random.uniform(-0.3725, 0.3725)
+
+        else:
+            store_zore   = self.supervisor.getFromId(self.target_zone_id).getField('translation').getSFVec3f()
+            rot_zone     = self.supervisor.getFromId(self.target_zone_id).getField('rotation').getSFRotation()
+            self.waiting_boxes.insert(0, box_to_store)
+
+            x = random.uniform(-0.25, 0.25)
+            y = random.uniform(-0.25, 0.25)
+
         store_zore[0] += x
         store_zore[1] += y
         store_zore[2] = 0.05
 
-        self.waiting_boxes.append(box_to_store)
+        
         box_to_store.getField('translation').setSFVec3f(store_zore)
+        box_to_store.getField('rotation').setSFRotation(rot_zone)
         
     def main_loop(self):
         while self.supervisor.step(TIME_STEP) != -1:
+            print(self.waiting_boxes)
             if(self.load_box):
                 self.load_box_robot()
                 self.load_box = False
@@ -100,5 +115,5 @@ class Supervisor_RPYC(rpyc.Service):
                 self.store_box = False
 
 instance = Supervisor_RPYC()
-ThreadedServer(instance, hostname="127.0.0.1", port=port.SUPERVISOR_PORT).start()
+ThreadedServer(instance, hostname="127.0.0.1", port=3000).start()
 
