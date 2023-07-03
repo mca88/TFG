@@ -32,9 +32,6 @@ class MoveLiner():
         ## PROPIEDADES
         self.counter = 0
         self.turn = None
-
-    def constant_timer(self,steps):
-        return int((steps*8) / self.time_step)
     
     def sleep_robot(self, segundos):
         if(self.counter >= segundos):

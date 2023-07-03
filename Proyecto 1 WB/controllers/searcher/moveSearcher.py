@@ -1,4 +1,5 @@
 from utils import TargetInfo
+from camSearcher import CamSearcher
 
 rotate_speed = 2
 move_speed   = 5
@@ -7,7 +8,7 @@ ds_limit_2 = 16
 
 class MoveSearcher():
 
-    def __init__(self, robot, time_step):
+    def __init__(self, robot, time_step, cam : CamSearcher):
         self.time_step = time_step
          ## SENSORES
         self.sensors = {
@@ -40,8 +41,9 @@ class MoveSearcher():
         self.search_state = 1
 
         ## Aux camara
-        self.left_margin = 0
-        self.right_margin = 0
+        self.cam = cam
+        self.left_margin = cam.cam_left_margin
+        self.right_margin = cam.cam_right_margin
 
     def constant_timer(self,steps):
         return int((steps*8) / self.time_step)
@@ -57,6 +59,9 @@ class MoveSearcher():
     def move_forward(self):
         [w.setVelocity(move_speed) for w in self.wheels]
 
+    def stop(self):
+        [w.setVelocity(0) for w in self.wheels]
+
     def small_forward(self):
         if(self.counter == self.constant_timer(200)):
             self.counter = 0
@@ -64,14 +69,6 @@ class MoveSearcher():
         else:
             self.move_forward()
             self.counter += 1
-            return False
-    def half_rotation(self):
-        if(self.counter == self.constant_timer(450)):
-            self.counter = 0
-            return True
-        else:
-            self.turn_left()
-            self.counter +=1
             return False
 
     def full_rotation(self, rotation_dir):
@@ -94,7 +91,23 @@ class MoveSearcher():
             self.counter += 1
             self.move_forward()
 
+    def get_robot_ahead(self):
+        camera_objects = self.cam.camera.getRecognitionObjects()
+
+        for co in camera_objects:
+            co_model = co.getModel()
+            if(co_model == "robot"):
+                size2D = co.getSizeOnImage()
+                size = size2D[0] * size2D[1]
+                if(size >= self.cam.cam_size*0.2):
+                    return True
+        return  False
+
     def avoid_obstacles(self):
+        if(self.get_robot_ahead()):
+            self.stop()
+            return True
+        
         center_v  = int(self.sensors['center'].getValue())
         left_1_v  = int(self.sensors['left_1'].getValue())
         left_2_v  = int(self.sensors['left_2'].getValue())
@@ -119,7 +132,6 @@ class MoveSearcher():
         if((left_2 and right_2) and (not center)):
            self.move_forward()
            return True
-
 
         elif(left_1 or left_2):
             self.reposition = True
@@ -149,6 +161,7 @@ class MoveSearcher():
         else:
             if(self.small_forward()):
                 self.search_state = 1
+                return True
 
     def move_to_target(self, target : TargetInfo):
         avoid = self.avoid_obstacles()
