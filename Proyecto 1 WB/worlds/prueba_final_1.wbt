@@ -8,8 +8,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/project
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.026051963478650186 -0.9989066047555888 0.03881868331833174 5.100123652049669
-  position -5.41182881051341 -2.6238721454169682 10.085195964847665
+  orientation 0.003923920294896987 -0.9999469089762428 -0.009527962971008847 5.501098724862586
+  position -6.153951095680333 -0.05599713009657961 5.666344387762544
 }
 TexturedBackground {
 }
@@ -1461,7 +1461,7 @@ DEF box_2 Solid {
   ]
 }
 DEF box_4 Solid {
-  translation 0.823866 -1.15169 0.0496118
+  translation 0.869644 -1.2867 0.0496118
   rotation -1.89666e-16 1.70455e-16 -1 0.340345
   children [
     DEF BOX_SHAPE Shape {
@@ -1527,7 +1527,7 @@ DEF box_6 Solid {
   ]
 }
 DEF box_7 Solid {
-  translation 0.676863 -0.971757 0.0496118
+  translation 0.789279 -0.78087 0.0496118
   rotation -1.34740027621794e-12 -1.0220101886933985e-13 -0.9999999999999999 6.0456497906023715e-06
   children [
     DEF BOX_SHAPE Shape {
@@ -1593,7 +1593,7 @@ DEF box_9 Solid {
   ]
 }
 DEF box_10 Solid {
-  translation -0.579588 -2.12303 0.0496118
+  translation -0.49611 -1.99491 0.0496118
   rotation 1.31509e-16 -1.011e-16 -1 0.301075
   children [
     DEF BOX_SHAPE Shape {
@@ -1615,7 +1615,7 @@ DEF box_10 Solid {
   ]
 }
 DEF box_13 Solid {
-  translation 1.17657 -2.39826 0.0496118
+  translation 0.940053 -1.98546 0.0496118
   rotation 6.674015496430764e-12 -7.153952117854563e-12 -1 6.045649790603482e-06
   children [
     DEF BOX_SHAPE Shape {
@@ -1703,7 +1703,7 @@ DEF box_17 Solid {
   ]
 }
 DEF box_18 Solid {
-  translation -0.816978 -1.96496 0.0496118
+  translation -0.808914 -1.6523 0.0496118
   rotation 4.5925e-16 -1.68846e-16 -1 0.261805
   children [
     DEF BOX_SHAPE Shape {

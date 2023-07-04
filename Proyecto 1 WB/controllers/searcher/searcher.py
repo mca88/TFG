@@ -9,7 +9,7 @@ from coordinator import Coordinator
 import utils as color
 
 import rpyc
-
+import keyboard
 robot_instance = Robot()
 TIME_STEP = int(robot_instance.getBasicTimeStep())
 
@@ -27,6 +27,7 @@ class Seacher(rpyc.Service):
         self.state = "search"
         self.box_on_top_id = -1
         self.target = None
+        self.parar = False
 
         ## Clases auxiliares
         self.cam  = CamSearcher(self.robot, TIME_STEP)
@@ -69,12 +70,39 @@ class Seacher(rpyc.Service):
             Seacher.exposed_target_color = color.color_blue
         else:
             Seacher.exposed_target_color = color.rand_color()
+
+    def stop_by_key(self):
+        name = self.robot.getName()
+
+        if (keyboard.is_pressed('g') and name == "robot_1"):
+            print("paramos 1")
+            self.parar = True
+        if(keyboard.is_pressed('b') and name == "robot_1"):
+            print("continuamos 1")
+            self.parar = False
+        
+        if (keyboard.is_pressed('h') and name == "robot_2"):
+            self.parar = True
+        if(keyboard.is_pressed('n') and name == "robot_2"):
+            self.parar = False
+        
+        if (keyboard.is_pressed('j') and name == "robot_3"):
+            self.parar = True
+        if(keyboard.is_pressed('m') and name == "robot_3"):
+            self.parar = False
+        
         
 
     def main_loop(self):
         reposition_before_searching = False
 
         while self.robot.step(TIME_STEP) != -1:
+            self.stop_by_key()
+
+            if(self.parar == True):
+                self.move.stop()
+                continue
+
             if(self.state == "search"): ## ESTADO BÚSQUEDA
                 if(self.move.move_to_search()):
                     self.change_color()
