@@ -48,20 +48,6 @@ class Seacher(rpyc.Service):
             return "red"
         else:
             return "blue"
-
-    def center_robot(self):
-        self.target = self.cam.get_camera_target(color.color_green)
-        if(self.target == None):
-            self.move.turn_left()
-        else:
-            self.cam.update_target(self.target)
-            if(self.target.pos_x < self.move.left_margin):
-                self.move.turn_left()
-            elif(self.target.pos_x > self.move.right_margin):
-                self.move.turn_right()
-            else:
-                return True
-        return False
     
     def change_color(self):
         next_color = self.net.get_target_color()
@@ -135,7 +121,7 @@ class Seacher(rpyc.Service):
 
             elif(self.state == "store"): ## ESTADO ALMACENAR
                 if(reposition_before_searching):
-                    if(self.center_robot()):
+                    if(self.move.center_robot()):
                         self.swap_state("search")
                         reposition_before_searching = False
                     continue

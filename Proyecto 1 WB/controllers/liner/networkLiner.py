@@ -150,9 +150,3 @@ class NetworkLiner:
         if(self.port != new_coordinator):
             self.coordinator_port = new_coordinator
             self.send_new_coordinator(new_coordinator)
-                
-
-            
-
-
-    

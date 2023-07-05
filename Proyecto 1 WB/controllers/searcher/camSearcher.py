@@ -39,6 +39,18 @@ class CamSearcher():
         else:
             return None
         
+    def get_robot_ahead(self):
+        camera_objects = self.camera.getRecognitionObjects()
+
+        for co in camera_objects:
+            co_model = co.getModel()
+            if(co_model == "robot"):
+                size2D = co.getSizeOnImage()
+                size = size2D[0] * size2D[1]
+                if(size >= self.cam_size*0.2):
+                    return True
+        return  False
+        
     def target_reached(self, target : TargetInfo, percentage):
         condition = (target.size >= self.cam_size*percentage)
         return (condition)
@@ -55,5 +67,3 @@ class CamSearcher():
 
                 return True
         return False
-        
-        

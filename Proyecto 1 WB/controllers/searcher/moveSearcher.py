@@ -1,4 +1,5 @@
 from utils import TargetInfo
+import utils as color
 from camSearcher import CamSearcher
 
 rotate_speed = 2
@@ -42,8 +43,6 @@ class MoveSearcher():
 
         ## Aux camara
         self.cam = cam
-        self.left_margin = cam.cam_left_margin
-        self.right_margin = cam.cam_right_margin
 
     def constant_timer(self,steps):
         return int((steps*8) / self.time_step)
@@ -91,20 +90,8 @@ class MoveSearcher():
             self.counter += 1
             self.move_forward()
 
-    def get_robot_ahead(self):
-        camera_objects = self.cam.camera.getRecognitionObjects()
-
-        for co in camera_objects:
-            co_model = co.getModel()
-            if(co_model == "robot"):
-                size2D = co.getSizeOnImage()
-                size = size2D[0] * size2D[1]
-                if(size >= self.cam.cam_size*0.2):
-                    return True
-        return  False
-
     def avoid_obstacles(self):
-        if(self.get_robot_ahead()):
+        if(self.cam.get_robot_ahead()):
             self.stop()
             return True
         
@@ -167,10 +154,23 @@ class MoveSearcher():
         avoid = self.avoid_obstacles()
         if(avoid): return
 
-        if(target.pos_x < self.left_margin):
+        if(target.pos_x < self.cam.cam_left_margin):
             self.turn_left()
-        elif(target.pos_x > self.right_margin):
+        elif(target.pos_x > self.cam.cam_right_margin):
             self.turn_right()
         else:
             self.move_forward()
 
+    def center_robot(self):
+        target = self.cam.get_camera_target(color.color_green)
+        if(target == None):
+            self.turn_left()
+        else:
+            self.cam.update_target(target)
+            if(target.pos_x < self.cam.cam_left_margin):
+                self.turn_left()
+            elif(target.pos_x > self.cam.cam_right_margin):
+                self.turn_right()
+            else:
+                return True
+        return False
