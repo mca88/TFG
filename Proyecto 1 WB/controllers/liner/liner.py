@@ -3,7 +3,6 @@ from rpyc.utils.server import ThreadedServer
 from threading import Thread
 
 from moveLiner import MoveLiner
-from coordinator import Coordinator
 from networkLiner import NetworkLiner
 from utils import States as st
 
@@ -18,7 +17,6 @@ class Liner(rpyc.Service):
     exposed_robot_type = "liner"
     exposed_store_status = False
     exposed_target_color = None
-    exposed_coordinator = None
 
     def __init__(self):
 
@@ -34,8 +32,6 @@ class Liner(rpyc.Service):
         ## Clases auxiliares
         self.move = MoveLiner(self.robot, TIME_STEP)
         self.net  = NetworkLiner(self.robot.getName())
-        if(self.robot.getName() == "robot_5"):
-            Liner.exposed_coordinator = Coordinator(False)
 
         ## Hilo bucle principal
         self.thread = Thread(target=self.main_loop)
@@ -43,6 +39,9 @@ class Liner(rpyc.Service):
 
     def exposed_set_box_id(self, new_id):
         self.box_on_top_id = new_id
+
+    def exposed_get_net(self):
+        return self.net
 
     def wait(self, segs):
         if(self.wait_status):
@@ -85,6 +84,9 @@ class Liner(rpyc.Service):
                 self.state = st.yellow_line
 
     def main_loop(self):
+
+        # if(self.robot.getName() == "robot_4"):
+        #     self.net.start_coordinator_election()
         
         while self.robot.step(TIME_STEP) != -1:
             self.state_changer()

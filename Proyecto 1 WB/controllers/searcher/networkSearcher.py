@@ -1,8 +1,12 @@
 import rpyc
-import utils as color
+from coordinator import Coordinator
+
 num_robots = 6
 IP = "127.0.0.1"
 class NetworkSearcher:
+
+    exposed_coordinator = None
+
     def __init__(self, name):
         self.name = name 
         self.robot_number = int(name.split("_")[1])
@@ -10,6 +14,10 @@ class NetworkSearcher:
         self.coordinator_port = 3005
 
         self.supervisor = None
+
+        self.neighbor_port = self.port + 1
+        if(self.neighbor_port == 3007):
+            self.neighbor_port = 3001
 
     ## FUNCIONES SUPERVISOR
 
@@ -56,9 +64,68 @@ class NetworkSearcher:
     
      ## FUNCIONES COORDINADOR
     def add_box_ammount(self, color):
-        coordinator_conn = rpyc.connect(IP, self.coordinator_port)
-        coordinator_conn.root.coordinator.add_amount(color)
-        coordinator_conn.close()
+        try:
+            coordinator_conn = rpyc.connect(IP, self.coordinator_port)
+            coordinator_conn.root.get_net().coordinator.add_amount(color)
+            coordinator_conn.close()
+        except:
+            print(f"El robot {self.name} ha detectado que el coordinador está caído y va a iniciar una elección")
+            self.coordinator_port = -1
+            self.start_coordinator_election()
+            # while(self.coordinator_port == -1):
+            #     pass
+            # print("no llego aquí")
+            # self.add_box_ammount(color)
+
+    def start_coordinator_election(self):
+        election_msg = self.port
+        self.send_msg_neighbor(election_msg)
+
+    def send_msg_neighbor(self, msg):
+        print(f"Soy {self.name} y voy a enviar mensaje a mi vecino")
+        try:
+            neighbor = rpyc.connect(IP, self.neighbor_port)
+            neighbor.root.get_net().get_election_message(msg)
+            neighbor.close()
+        except Exception as e:
+            print(e)
+            print(f"El robot {self.neighbor_port-3000} está caído, intentando con {self.neighbor_port-3000+1}")
+            neighbor = rpyc.connect(IP, self.neighbor_port + 1)
+            neighbor.root.get_net().get_election_message(msg)
+            neighbor.close()
+
+    def send_new_coordinator(self, new_coordinator):
+        try:
+            neighbor = rpyc.connect(IP, self.neighbor_port)
+            neighbor.root.get_net().new_coordinator(new_coordinator)
+            neighbor.close()
+        except Exception as e:
+            print(e)
+            print(f"El robot {self.neighbor_port-3000} está caído, intentando con {self.neighbor_port-3000+1}")
+            neighbor = rpyc.connect(IP, self.neighbor_port + 1)
+            neighbor.root.get_net().new_coordinator(new_coordinator)
+            neighbor.close()
+            
+    def exposed_get_election_message(self, max_port):
+        print(f"Soy {self.name} y recibo {max_port}")
+        
+        if(max_port > self.port):
+            election_msg = max_port
+        elif(max_port < self.port):
+            election_msg = self.port
+
+        if(max_port == self.port):
+            NetworkSearcher.exposed_coordinator = Coordinator(True)
+            self.coordinator_port = self.port
+            self.send_new_coordinator(self.port)
+        else:
+            self.send_msg_neighbor(election_msg)
+
+    def exposed_new_coordinator(self, new_coordinator):
+        print(f"Soy {self.name} y mi nuevo coordinador es {new_coordinator}")
+        if(self.port != new_coordinator):
+            self.coordinator_port = new_coordinator
+            self.send_new_coordinator(new_coordinator)
 
             
 

@@ -5,7 +5,6 @@ from threading import Thread
 from moveSearcher import MoveSearcher
 from camSearcher import CamSearcher
 from networkSearcher import NetworkSearcher
-from coordinator import Coordinator
 import utils as color
 
 import rpyc
@@ -17,7 +16,6 @@ class Seacher(rpyc.Service):
 
     exposed_robot_type = "searcher"
     exposed_target_color = color.rand_color()
-    exposed_coordinator = None
 
     def __init__(self):
         ## Robot
@@ -41,6 +39,9 @@ class Seacher(rpyc.Service):
     def swap_state(self,new_state):
         self.move.counter = 0
         self.state = new_state
+
+    def exposed_get_net(self):
+        return self.net
 
     def exposed_get_color(self):
         if(Seacher.exposed_target_color == color.color_red):
