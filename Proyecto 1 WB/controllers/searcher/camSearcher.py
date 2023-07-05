@@ -11,7 +11,6 @@ class CamSearcher():
         self.camera.enable(time_step)
         self.camera.recognitionEnable(time_step)
 
-        self.color_target = color.color_red
         self.cam_left_margin = self.camera.getHeight()/2 - cam_margin
         self.cam_right_margin = self.camera.getHeight()/2 + cam_margin
         self.cam_size = self.camera.getWidth() * self.camera.getHeight()
