@@ -6,9 +6,9 @@ maximizedDockId: -1
 centralWidgetVisible: 1
 orthographicViewHeight: 1
 textFiles: 0 "../../../../../Program Files/Webots/projects/default/controllers/sumo_supervisor/sumo_supervisor.py"
-globalOptionalRendering: CoordinateSystem::DistanceSensorRays::CameraFrustums
+globalOptionalRendering: DistanceSensorRays::CameraFrustums
 consoles: Console:All:All
-renderingDevicePerspectives: robot_1:camera;0;0.149314;0.764092;0.0258993
-renderingDevicePerspectives: robot_2:camera;0;0.145833;0.715073;0.313987
+renderingDevicePerspectives: robot_1:camera;0;0.358333;0;0
+renderingDevicePerspectives: robot_2:camera;0;0.358333;0;0
 renderingDevicePerspectives: robot_3:camera;0;0.358333;0;0
 renderingDevicePerspectives: robot_4:camera;0;0.358333;0;0

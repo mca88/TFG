@@ -1,7 +1,7 @@
 import rpyc
 from coordinator import Coordinator
 
-num_robots = 6
+num_robots = 4
 IP = "127.0.0.1"
 class NetworkSearcher:
 
@@ -11,7 +11,8 @@ class NetworkSearcher:
         self.name = name 
         self.robot_number = int(name.split("_")[1])
         self.port = 3000 + self.robot_number
-        self.coordinator_port = 3005
+        self.coordinator_port = 3004
+        if(self.port == 3004): NetworkSearcher.exposed_coordinator = Coordinator(False)
 
         self.supervisor = None
 
@@ -60,7 +61,21 @@ class NetworkSearcher:
         elif(blue < red):
             return "blue"
         else:
-            return None
+            try:
+                coordinator_conn = rpyc.connect(IP, self.coordinator_port)
+                coordinator_answer = coordinator_conn.root.get_net().coordinator.check_color_amout()
+                coordinator_conn.close()
+            except:
+                print(f"El robot {self.name} ha detectado que el coordinador está caído y va a iniciar una elección")
+                self.start_coordinator_election()
+                return "blue"
+            
+            if(coordinator_answer == "blue"):
+                return "red"
+            elif(coordinator_answer == "red"):
+                return "blue"
+            else:
+                return None
     
      ## FUNCIONES COORDINADOR
     def add_box_ammount(self, color):

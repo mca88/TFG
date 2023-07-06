@@ -44,7 +44,9 @@ class Coordinator:
         red = self.get_red_amount()
         blue = self.get_blue_amount()
 
-        if(red >= blue):
+        if(red > blue):
             return "red"
         elif(blue > red):
             return "blue"
+        else:
+            return None

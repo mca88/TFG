@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from random import randint
 
 def value_to_color(value):
     if(620 <= value <= 637): return "black"
@@ -9,6 +10,13 @@ def value_to_color(value):
     if(120 <= value <= 128): return "yellow"
 
     return ("???")
+
+def rand_color():
+    x = randint(0,100)
+    if(x <= 50):
+        return "red"
+    else:
+        return "blue"
 
 @dataclass
 class States:

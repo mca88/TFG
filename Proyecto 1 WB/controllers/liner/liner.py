@@ -7,6 +7,7 @@ from networkLiner import NetworkLiner
 from utils import States as st
 
 import rpyc
+import utils as ut
 
 
 robot_instance = Robot()
@@ -17,6 +18,7 @@ class Liner(rpyc.Service):
     exposed_robot_type = "liner"
     exposed_store_status = False
     exposed_target_color = None
+    exposed_name = robot_instance.getName()
 
     def __init__(self):
 
@@ -96,7 +98,9 @@ class Liner(rpyc.Service):
             if(self.state == st.choose_target):
 
                 if(Liner.exposed_target_color == None):
-                    Liner.exposed_target_color = self.net.choose_target_color()
+                    result = self.net.choose_target_color()
+                    if(result == None): result = ut.rand_color()
+                    Liner.exposed_target_color = result
 
                 if(Liner.exposed_target_color == "red"):
                     self.move.turn_right()

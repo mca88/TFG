@@ -58,37 +58,10 @@ class Seacher(rpyc.Service):
         else:
             Seacher.exposed_target_color = color.rand_color()
 
-    def stop_by_key(self):
-        name = self.robot.getName()
-
-        if (keyboard.is_pressed('g') and name == "robot_1"):
-            print("paramos 1")
-            self.parar = True
-        if(keyboard.is_pressed('b') and name == "robot_1"):
-            print("continuamos 1")
-            self.parar = False
-        
-        if (keyboard.is_pressed('h') and name == "robot_2"):
-            self.parar = True
-        if(keyboard.is_pressed('n') and name == "robot_2"):
-            self.parar = False
-        
-        if (keyboard.is_pressed('j') and name == "robot_3"):
-            self.parar = True
-        if(keyboard.is_pressed('m') and name == "robot_3"):
-            self.parar = False
-        
-        
-
     def main_loop(self):
         reposition_before_searching = False
 
         while self.robot.step(TIME_STEP) != -1:
-            self.stop_by_key()
-
-            if(self.parar == True):
-                self.move.stop()
-                continue
 
             if(self.state == "search"): ## ESTADO BÚSQUEDA
                 if(self.move.move_to_search()):

@@ -1,7 +1,7 @@
 import rpyc
 from coordinator import Coordinator
 
-num_robots = 6
+num_robots = 4
 IP = "127.0.0.1"
 class NetworkLiner:
 
@@ -11,9 +11,8 @@ class NetworkLiner:
         self.name = name 
         self.robot_number = int(name.split("_")[1])
         self.port = 3000 + self.robot_number
-        self.coordinator_port = 3005
-        if(self.name == "robot_5"):
-            NetworkLiner.exposed_coordinator = Coordinator(False)
+        self.coordinator_port = 3004
+        if(self.port == 3004): NetworkLiner.exposed_coordinator = Coordinator(False)
 
         self.supervisor = None
 
@@ -42,7 +41,7 @@ class NetworkLiner:
         blue = 0
         red = 0
 
-        for n in range(4,num_robots+1):
+        for n in range(1,num_robots+1):
             robot_port = n+3000
             if(robot_port == self.port): continue
             try:
@@ -73,7 +72,7 @@ class NetworkLiner:
             return coordinator_answer
         
     def check_store_status(self):
-        for n in range(4,num_robots+1):
+        for n in range(1,num_robots+1):
             robot_port = n+3000
             if(robot_port == self.port):
                 continue
